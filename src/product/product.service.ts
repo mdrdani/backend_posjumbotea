@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -10,20 +10,46 @@ export class ProductService {
   /*
 
   */
-  async create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto, file: Express.Multer.File) {
+    let imagePath: string | undefined = undefined;
+
+    if(file){
+      const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if(!allowedMimeTypes.includes(file.mimetype)){
+        throw new BadRequestException('invalid file type')
+      }
+
+      const maxSize = 1 * 1024 * 1024;
+      if(file.size > maxSize){
+        throw new BadRequestException('File is too large')
+      }
+
+      const filename = `${Date.now()}_${file.originalname}`;
+      imagePath = `public/uploads/products/${filename}`
+
+      const fs = await import('fs/promises')
+      await fs.writeFile(imagePath, file.buffer)
+    }
+
+    const productData = {
+      ...createProductDto,
+      image: imagePath
+    }
+
+    // console.log(productData)
+
     const createProduct = await this.prisma.products.create({
-      data: createProductDto
+      data: productData
     })
 
-    if(createProduct){
+    
       return {
         statusCode: 200,
         message: 'Product Created Succesfully',
         data: createProduct
       }
-    }
+    
   }
-
 
   async findAll() {
     const allProduct = await this.prisma.products.findMany()
@@ -35,7 +61,6 @@ export class ProductService {
       }
     }
   }
-
 
   async findOne(id: number) {
     const findProductId = await this.prisma.products.findFirst({
