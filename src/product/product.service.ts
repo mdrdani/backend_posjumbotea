@@ -35,14 +35,11 @@ export class ProductService {
       ...createProductDto,
       image: imagePath
     }
-
     // console.log(productData)
 
     const createProduct = await this.prisma.products.create({
       data: productData
     })
-
-    
       return {
         statusCode: 200,
         message: 'Product Created Succesfully',
@@ -80,21 +77,60 @@ export class ProductService {
     }
   }
 
-  async update(id: number, updateProductDto: UpdateProductDto) {
+  async update(id: number, updateProductDto: UpdateProductDto, file?: Express.Multer.File) {
+    let imagePath : string | undefined;
+
+    const existingProduct = await this.prisma.products.findUnique({
+      where: {id}
+    });
+
+    if(!existingProduct){
+      throw new NotFoundException('Product not found')
+    }
+
+    if(file){
+      const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if(!allowedMimeTypes.includes(file.mimetype)){
+        throw new BadRequestException('invalid file type')
+      }
+
+      const maxSize = 1 * 1024 * 1024;
+      if (file.size > maxSize){
+        throw new BadRequestException('file is to large')
+      }
+
+      const filename = `${Date.now()}_${file.originalname}`;
+      imagePath =  `public/uploads/products/${filename}`
+
+      const fs = await import('fs/promises')
+      await fs.writeFile(imagePath, file.buffer);
+
+      if(existingProduct.image){
+        await fs.unlink(existingProduct.image).catch((err) => {
+          console.warn(`failed to delete old image: ${err.message}`)
+        })
+      }
+    }else{
+      imagePath = existingProduct.image;
+    }
+
+    const updatedData = {
+      ...updateProductDto,
+      image: imagePath
+    }
+
     const updateProduct = await this.prisma.products.update({
       where:{
         id: id
       },
-      data: updateProductDto
+      data: updatedData
     })
-
-    if(updateProduct){
+    
       return {
         statusCode: 200,
         message: 'School Updated successfully',
         data: updateProduct
       }
-    }
   }
 
   async remove(id: number) {

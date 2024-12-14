@@ -29,8 +29,13 @@ export class ProductController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return await this.productService.update(+id, updateProductDto);
+  @UseInterceptors(FileInterceptor('image'))
+  async update(
+    @Param('id') id: string, 
+    @Body() updateProductDto: UpdateProductDto,
+    @UploadedFile() file?: Express.Multer.File
+  ) {
+    return await this.productService.update(+id, updateProductDto, file);
   }
 
   @Delete(':id')
