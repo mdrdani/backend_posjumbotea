@@ -21,5 +21,6 @@ export class RegisterDto {
     password: string;
 
     @IsEnum(Role, { message: "role must be one of ADMIN, STAFF, or USER" })
+    @IsOptional()
     role: Role
 }

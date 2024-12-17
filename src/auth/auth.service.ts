@@ -69,4 +69,43 @@ export class AuthService {
             throw new HttpException('user or password not match', HttpStatus.UNAUTHORIZED)
         }
     }
+
+    async profile(user_id: number){
+        const detailProfile = await this.prisma.users.findUnique({
+            where: {
+                id: user_id
+            },
+            select: {
+                name: true,
+                email: true,
+                phone: true,
+                role: true
+            }
+        })
+        if(detailProfile){
+            return {
+                statusCode: 200,
+                message: 'Detail Profile',
+                data: detailProfile
+            }
+        }
+    }
+
+    async allUser(){
+        const allUser = await this.prisma.users.findMany({
+            select: {
+                name: true,
+                email: true,
+                phone: true,
+                role: true
+            }
+        })
+        if(allUser){
+            return {
+                statusCode: 200,
+                message: 'All User',
+                data: allUser
+            }
+        }
+    }
 }

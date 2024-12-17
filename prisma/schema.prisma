@@ -29,6 +29,7 @@ model products {
   image          String?
   is_best_seller Boolean     @default(false)
   orderItem      orderItem[]
+  createdAt      DateTime    @default(now())
 }
 
 enum Role {
@@ -38,13 +39,14 @@ enum Role {
 }
 
 model users {
-  id       Int      @id @default(autoincrement())
-  name     String
-  email    String   @unique
-  phone    String?
-  password String
-  role     Role     @default(USER)
-  orders   orders[]
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  phone     String?
+  password  String
+  role      Role     @default(USER)
+  orders    orders[]
+  createdAt DateTime @default(now())
 }
 
 model orders {
@@ -56,6 +58,7 @@ model orders {
   users            users?      @relation(fields: [kasirId], references: [id])
   payment_method   String
   orderItem        orderItem[]
+  createdAt        DateTime    @default(now())
 }
 
 model orderItem {
@@ -66,4 +69,5 @@ model orderItem {
   products    products? @relation(fields: [productId], references: [id])
   quantity    Int
   total_price Int
+  createdAt   DateTime  @default(now())
 }

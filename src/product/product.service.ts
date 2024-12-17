@@ -152,7 +152,7 @@ export class ProductService {
     
       return {
         statusCode: 200,
-        message: 'School deleted successfully',
+        message: 'Product deleted successfully',
         data: deleteProduct
       }
   
