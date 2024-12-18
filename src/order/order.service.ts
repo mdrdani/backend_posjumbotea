@@ -97,7 +97,15 @@ export class OrderService {
                         products: true
                     }
                 },
-                users: true
+                users: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        phone: true,
+                        role: true
+                    }
+                }
             }
         })
 
