@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { REQUEST } from '@nestjs/core';
@@ -83,6 +83,32 @@ export class OrderService {
                 message: 'All order data',
                 data: allOrder
             }
+        }
+    }
+
+    async viewOrderDetail(orderId: number){
+        const order = await this.prismaService.orders.findFirst({
+            where: { 
+                id: orderId,
+                kasirId: this.req.user.id},
+            include: {
+                orderItem: {
+                    include: {
+                        products: true
+                    }
+                },
+                users: true
+            }
+        })
+
+        if(!order){
+            throw new NotFoundException(`Order with ID ${orderId} not found.`);
+        }
+
+        return {
+            status: 'success',
+            message: 'Order detail',
+            data: order
         }
     }
 }
