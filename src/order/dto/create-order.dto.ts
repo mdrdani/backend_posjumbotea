@@ -22,8 +22,6 @@ class CreateOrderItemDto {
 
 // DTO untuk `orders`
 export class CreateOrderDto {
-  @IsInt()
-  kasirId: number;
 
   @IsEnum(PaymentMethod)
   payment_method: PaymentMethod;

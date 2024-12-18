@@ -11,7 +11,8 @@ export class OrderService {
     ){}
 
     async createOrder(createOrderDto: CreateOrderDto){
-        const { kasirId, payment_method, total_price, total_item, orderItems } = createOrderDto;
+        const { payment_method, total_price, total_item, orderItems } = createOrderDto;
+        const kasirId = this.req.user.id;
 
         return this.prismaService.$transaction(async (prisma) => {
             const newOrder = await prisma.orders.create({
