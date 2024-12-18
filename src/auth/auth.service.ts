@@ -76,6 +76,7 @@ export class AuthService {
                 id: user_id
             },
             select: {
+                id: true,
                 name: true,
                 email: true,
                 phone: true,
@@ -94,6 +95,7 @@ export class AuthService {
     async allUser(){
         const allUser = await this.prisma.users.findMany({
             select: {
+                id: true,
                 name: true,
                 email: true,
                 phone: true,
