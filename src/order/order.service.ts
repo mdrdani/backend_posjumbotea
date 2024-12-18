@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { REQUEST } from '@nestjs/core';
@@ -23,9 +23,27 @@ export class OrderService {
                 },
             });
 
-            const createdOrderItems = await Promise.all(
-                orderItems.map((item) => 
-                    prisma.orderItem.create({
+            // check order
+            const updatedOrderItems = await Promise.all(
+                orderItems.map(async (item) => {
+                    const product = await prisma.products.findUnique({
+                        where: { id: item.productId}
+                    });
+
+                    if (!product) {
+                        throw new BadRequestException(`Product with ID ${item.productId} not found.`);
+                    }
+            
+                    if (product.stock < item.quantity) {
+                        throw new BadRequestException(`Not enough stock for product ID ${item.productId}. Available: ${product.stock}, Requested: ${item.quantity}`);
+                    }
+
+                    await prisma.products.update({
+                        where:{id: item.productId},
+                        data: { stock: product.stock - item.quantity}
+                    })
+
+                    return prisma.orderItem.create({
                         data: {
                             orderId: newOrder.id,
                             productId: item.productId,
@@ -33,12 +51,12 @@ export class OrderService {
                             total_price: item.total_price
                         }
                     })
-                )
+                })
             );
 
             return {
                 ...newOrder,
-                orderItems: createdOrderItems
+                orderItems: updatedOrderItems
             }
         })
     }
@@ -56,7 +74,6 @@ export class OrderService {
                 payment_method: true,
                 createdAt: true,
                 transaction_time: true,
-                orderItem: true
             }
         })
         if(allOrder){
