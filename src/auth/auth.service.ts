@@ -94,6 +94,9 @@ export class AuthService {
 
     async allUser(){
         const allUser = await this.prisma.users.findMany({
+            where: {
+                deletedAt: null
+            },
             select: {
                 id: true,
                 name: true,
@@ -108,6 +111,30 @@ export class AuthService {
                 message: 'All User',
                 data: allUser
             }
+        }
+    }
+
+    async softDeleteUser(userId: number){
+        const user = await this.prisma.users.findUnique({
+            where: {id: userId}
+        })
+
+        if(!user){
+            throw new HttpException('User not found', HttpStatus.NOT_FOUND)
+        }
+
+        if(user.deletedAt){
+            throw new HttpException('User already deleted', HttpStatus.NOT_FOUND)
+        }
+
+        await this.prisma.users.update({
+            where: {id: userId},
+            data: {deletedAt: new Date()}
+        })
+
+        return {
+            statusCode: 200,
+            message: 'User deleted successfully'
         }
     }
 }

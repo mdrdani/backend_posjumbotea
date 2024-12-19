@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/RegisterDto';
 import { LoginDto } from './dto/LoginDto';
@@ -28,5 +28,12 @@ export class AuthController {
     @Get('users')
     async users(){
         return await this.authService.allUser()
+    }
+
+    @UseGuards(AuthGuard)
+    @Delete('users/:id')
+    async softDeleteUser(@Param('id') id: string){
+        const userId = parseInt(id, 10)
+        return await this.authService.softDeleteUser(userId)
     }
 }
