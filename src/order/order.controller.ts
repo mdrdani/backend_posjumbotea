@@ -7,19 +7,20 @@ import { OrderService } from './order.service';
 export class OrderController {
     constructor(private readonly orderService: OrderService){}
 
-    @UseGuards(AuthGuard)
+    @UseGuards(new AuthGuard(['ADMIN', 'STAFF']))
     @Post()
     async createOrder(@Body() createOrderDto: CreateOrderDto){
         return this.orderService.createOrder(createOrderDto);
     }
 
+    @UseGuards(new AuthGuard(['ADMIN', 'STAFF']))
     @UseGuards(AuthGuard)
     @Get()
     async allOrder(){
         return this.orderService.allOrder();
     }
 
-    @UseGuards(AuthGuard)
+    @UseGuards(new AuthGuard(['ADMIN', 'STAFF']))
     @Get(':id')
     async getOrderById(@Param('id') id: string){
         const orderId = parseInt(id, 10)

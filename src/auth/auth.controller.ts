@@ -18,19 +18,20 @@ export class AuthController {
         return await this.authService.login(data);
     }
 
-    @UseGuards(AuthGuard)
+    @UseGuards(new AuthGuard(['ADMIN', 'STAFF', 'USER']))
     @Get('profile')
     async profile(@Req() req) {
-        return await this.authService.profile(req.user.id)
+        return await this.authService.profile(req.user.id);
     }
 
-    @UseGuards(AuthGuard)
+
+    @UseGuards(new AuthGuard(['ADMIN']))
     @Get('users')
     async users(){
         return await this.authService.allUser()
     }
 
-    @UseGuards(AuthGuard)
+    @UseGuards(new AuthGuard(['ADMIN']))
     @Delete('users/:id')
     async softDeleteUser(@Param('id') id: string){
         const userId = parseInt(id, 10)

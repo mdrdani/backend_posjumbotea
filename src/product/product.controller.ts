@@ -9,7 +9,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  @UseGuards(AuthGuard)
+  @UseGuards(new AuthGuard(['ADMIN','STAFF']))
   @UsePipes(ValidationPipe)
   @Post()
   @UseInterceptors(FileInterceptor('image'))
@@ -20,19 +20,20 @@ export class ProductController {
     return await this.productService.create(createProductDto, file);
   }
 
+  @UseGuards(new AuthGuard(['ADMIN', 'STAFF', 'USER']))
   @UseGuards(AuthGuard)
   @Get()
   async findAll() {
     return await this.productService.findAll();
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(new AuthGuard(['ADMIN', 'STAFF']))
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return await this.productService.findOne(+id);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(new AuthGuard(['ADMIN', 'STAFF']))
   @Patch(':id')
   @UseInterceptors(FileInterceptor('image'))
   async update(
@@ -43,6 +44,7 @@ export class ProductController {
     return await this.productService.update(+id, updateProductDto, file);
   }
 
+  @UseGuards(new AuthGuard(['ADMIN']))
   @UseGuards(AuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string) {

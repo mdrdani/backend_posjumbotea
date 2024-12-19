@@ -58,7 +58,8 @@ export class AuthService {
             const accessToken = this.generateJWT({
                 sub: checkUserExists.id,
                 name: checkUserExists.name,
-                email: checkUserExists.email
+                email: checkUserExists.email,
+                role: checkUserExists.role
             })
             return{
                 statusCode: 200,
