@@ -27,7 +27,7 @@ export class AuthGuard extends AuthGuardPassport('jwt') {
     // console.log('User in canActivate:', user); // Tambahkan logging di sini
 
     if (this.requiredRoles.length > 0 && (!user || !this.requiredRoles.some(role => user.role === role))) {
-      console.log('Forbidden: User does not have required roles'); // Tambahkan logging di sini
+      // console.log('Forbidden: User does not have required roles'); // Tambahkan logging di sini
       throw new ForbiddenException(
         `You do not have access to this resource. Required roles: ${this.requiredRoles.join(', ')}`
       );
